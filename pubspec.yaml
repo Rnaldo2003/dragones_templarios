@@ -12,6 +12,7 @@ dev_dependencies:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^1.0.7
 flutter:
   assets:
     - assets/logo.png

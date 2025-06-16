@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/estudiantes_card.dart';
 import '../models/estudiantes.dart';
 import '../services/estudiante_service.dart';
+import 'formulario_estudiante.dart';
 
 class ListaEstudiantesPage extends StatefulWidget {
   const ListaEstudiantesPage({super.key});
@@ -13,62 +14,18 @@ class ListaEstudiantesPage extends StatefulWidget {
 class _ListaEstudiantesPageState extends State<ListaEstudiantesPage> {
   final EstudianteService _service = EstudianteService();
 
-  void _mostrarFormularioAgregar() {
-    final nombreCtrl = TextEditingController();
-    final rangoCtrl = TextEditingController();
-    final sangreCtrl = TextEditingController();
-    final telefonoCtrl = TextEditingController();
-    final emergenciaCtrl = TextEditingController();
-    final edadCtrl = TextEditingController();
-    final jornadaCtrl = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Agregar Estudiante'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(controller: nombreCtrl, decoration: const InputDecoration(labelText: 'Nombre')),
-                TextField(controller: rangoCtrl, decoration: const InputDecoration(labelText: 'Rango')),
-                TextField(controller: sangreCtrl, decoration: const InputDecoration(labelText: 'Tipo de Sangre')),
-                TextField(controller: telefonoCtrl, decoration: const InputDecoration(labelText: 'Teléfono')),
-                TextField(controller: emergenciaCtrl, decoration: const InputDecoration(labelText: 'Emergencia')),
-                TextField(controller: edadCtrl, decoration: const InputDecoration(labelText: 'Edad'), keyboardType: TextInputType.number),
-                TextField(controller: jornadaCtrl, decoration: const InputDecoration(labelText: 'Jornada')),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _service.agregarEstudiante(
-                    Estudiante(
-                      nombre: nombreCtrl.text,
-                      rango: rangoCtrl.text,
-                      tipoSangre: sangreCtrl.text,
-                      telefono: telefonoCtrl.text,
-                      emergencia: emergenciaCtrl.text,
-                      edad: int.tryParse(edadCtrl.text) ?? 0,
-                      jornada: jornadaCtrl.text,
-                      imagen: 'assets/logo.png',
-                    ),
-                  );
-                });
-                Navigator.pop(context);
-              },
-              child: const Text('Agregar'),
-            ),
-          ],
-        );
-      },
+  Future<void> _mostrarFormularioAgregar() async {
+    final nuevo = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const FormularioEstudiantePage(),
+      ),
     );
+    if (nuevo != null && nuevo is Estudiante) {
+      setState(() {
+        _service.agregarEstudiante(nuevo);
+      });
+    }
   }
 
   void _eliminarEstudiante(int index) {
