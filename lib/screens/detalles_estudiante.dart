@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/estudiantes.dart';
+import '../widgets/custom_app_bar.dart';
 
 class DetallesEstudiantePage extends StatelessWidget {
   final Estudiante estudiante;
@@ -9,14 +10,11 @@ class DetallesEstudiantePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(estudiante.nombre),
-        backgroundColor: Colors.red[800],
-      ),
+      appBar: const CustomAppBar(title: 'Detalles del Estudiante', showBack: true),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0000A3), Color(0xFF8B0000)],
+            colors: [Color(0xFF0D1A36), Color(0xFF8B0000)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -28,19 +26,19 @@ class DetallesEstudiantePage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 CircleAvatar(
-                  radius: 50,
                   backgroundImage: AssetImage(estudiante.imagen),
+                  radius: 50,
                 ),
                 const SizedBox(height: 20),
-                _buildDetail('Nombre', estudiante.nombre),
-                _buildDetail('Rango', estudiante.rango),
-                _buildDetail('Tipo de Sangre', estudiante.tipoSangre),
+                _buildDetail('Jornada', estudiante.jornada),
+                _buildDetail('Edad', estudiante.edad.toString()),
                 _buildDetail('Teléfono', estudiante.telefono),
                 _buildDetail('Emergencia', estudiante.emergencia),
-                _buildDetail('Edad', estudiante.edad.toString()),
-                _buildDetail('Jornada', estudiante.jornada),
+                _buildDetail('Tipo de Sangre', estudiante.tipoSangre),
+                _buildDetail('Cinturón', estudiante.rango),
               ],
             ),
           ),

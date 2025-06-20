@@ -3,8 +3,15 @@ import '../models/estudiantes.dart';
 
 class EstudiantesCard extends StatelessWidget {
   final Estudiante estudiante;
+  final VoidCallback? onEliminar;
+  final VoidCallback? onEditar; // <-- Nuevo parámetro
 
-  const EstudiantesCard({super.key, required this.estudiante});
+  const EstudiantesCard({
+    super.key,
+    required this.estudiante,
+    this.onEliminar,
+    this.onEditar, // <-- Nuevo
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,18 +45,14 @@ class EstudiantesCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    // Acción para editar
-                  },
+                  onPressed: onEditar, // <-- Usa el callback aquí
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                   ),
                   child: const Text('Editar'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    // Acción para eliminar
-                  },
+                  onPressed: onEliminar,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),

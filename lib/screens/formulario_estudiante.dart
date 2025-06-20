@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../models/estudiantes.dart';
+import '../widgets/custom_app_bar.dart';
 
 class FormularioEstudiantePage extends StatefulWidget {
   final Estudiante? estudiante; // null si se va a crear
@@ -93,14 +94,14 @@ class _FormularioEstudiantePageState extends State<FormularioEstudiantePage> {
     final esEdicion = widget.estudiante != null;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(esEdicion ? 'Editar Estudiante' : 'Agregar Estudiante'),
-        backgroundColor: Colors.red[800],
+      appBar: CustomAppBar(
+        title: esEdicion ? 'Editar Estudiante' : 'Agregar Estudiante',
+        showBack: true,
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0000A3), Color(0xFF8B0000)],
+            colors: [Color(0xFF0D1A36), Color(0xFF8B0000)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

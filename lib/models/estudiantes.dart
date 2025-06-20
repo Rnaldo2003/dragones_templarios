@@ -1,15 +1,16 @@
-// Modelo de estudiante
 class Estudiante {
-  final String nombre;
-  final String rango;
-  final String tipoSangre;
-  final String telefono;
-  final String emergencia;
-  final int edad;
-  final String jornada;
-  final String imagen;
+  int? id; // <-- Nuevo campo
+  String nombre;
+  String rango;
+  String tipoSangre;
+  String telefono;
+  String emergencia;
+  int edad;
+  String jornada;
+  String imagen;
 
-  const Estudiante({
+  Estudiante({
+    this.id, // <-- Nuevo campo
     required this.nombre,
     required this.rango,
     required this.tipoSangre,
@@ -19,4 +20,28 @@ class Estudiante {
     required this.jornada,
     required this.imagen,
   });
+
+  factory Estudiante.fromJson(Map<String, dynamic> json) => Estudiante(
+        id: json['id'], // <-- Nuevo campo
+        nombre: json['firstName'] ?? '',
+        rango: json['rango'] ?? '',
+        tipoSangre: json['tipoSangre'] ?? '',
+        telefono: json['telefono'] ?? '',
+        emergencia: json['emergencia'] ?? '',
+        edad: json['edad'] ?? 0,
+        jornada: json['jornada'] ?? '',
+        imagen: json['profile_picture'] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id, // <-- Nuevo campo
+        'firstName': nombre,
+        'rango': rango,
+        'tipoSangre': tipoSangre,
+        'telefono': telefono,
+        'emergencia': emergencia,
+        'edad': edad,
+        'jornada': jornada,
+        'profile_picture': imagen,
+      };
 }
