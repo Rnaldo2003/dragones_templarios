@@ -76,6 +76,7 @@ class _FormularioEstudiantePageState extends State<FormularioEstudiantePage> {
   void _guardar() {
     if (_formKey.currentState!.validate()) {
       final nuevo = Estudiante(
+        id: widget.estudiante?.id, // <-- Mantén el id si es edición
         nombre: nombreCtrl.text,
         rango: rango,
         tipoSangre: tipoSangre,
