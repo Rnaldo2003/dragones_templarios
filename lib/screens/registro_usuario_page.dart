@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../models/usuarios.dart';
+import '../services/usuario_service.dart';
 import '../widgets/custom_app_bar.dart';
 
 class RegistroUsuarioPage extends StatefulWidget {
@@ -10,16 +12,39 @@ class RegistroUsuarioPage extends StatefulWidget {
 
 class _RegistroUsuarioPageState extends State<RegistroUsuarioPage> {
   final _formKey = GlobalKey<FormState>();
-  final _usuarioCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
+  final UsuarioService _service = UsuarioService();
 
-  void _registrar() {
+  final TextEditingController nombreCtrl = TextEditingController();
+  final TextEditingController emailCtrl = TextEditingController();
+  final TextEditingController passCtrl = TextEditingController();
+  String rol = 'estudiante';
+
+  bool _guardando = false;
+
+  Future<void> _registrar() async {
     if (_formKey.currentState!.validate()) {
-      // Aquí deberías guardar el usuario en tu backend o localmente
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario registrado (simulado)')),
+      setState(() => _guardando = true);
+
+      final usuario = Usuario(
+        nombre: nombreCtrl.text,
+        email: emailCtrl.text,
+        rol: rol,
       );
-      Navigator.pop(context);
+
+      final response = await _service.crearUsuario(usuario, passCtrl.text);
+
+      setState(() => _guardando = false);
+
+      if (response) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Usuario creado exitosamente')),
+        );
+        Navigator.pop(context, usuario);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al crear usuario')),
+        );
+      }
     }
   }
 
@@ -54,28 +79,36 @@ class _RegistroUsuarioPageState extends State<RegistroUsuarioPage> {
                       ),
                       const SizedBox(height: 24),
                       TextFormField(
-                        controller: _usuarioCtrl,
-                        decoration: const InputDecoration(labelText: 'Usuario'),
-                        validator: (v) => v == null || v.isEmpty ? 'Ingrese un usuario' : null,
+                        controller: nombreCtrl,
+                        decoration: const InputDecoration(labelText: 'Nombre'),
+                        validator: (value) => value == null || value.isEmpty ? 'Ingrese el nombre' : null,
                       ),
-                      const SizedBox(height: 16),
                       TextFormField(
-                        controller: _passwordCtrl,
+                        controller: emailCtrl,
+                        decoration: const InputDecoration(labelText: 'Email'),
+                        validator: (value) => value == null || value.isEmpty ? 'Ingrese el email' : null,
+                      ),
+                      TextFormField(
+                        controller: passCtrl,
                         decoration: const InputDecoration(labelText: 'Contraseña'),
                         obscureText: true,
-                        validator: (v) => v == null || v.isEmpty ? 'Ingrese una contraseña' : null,
+                        validator: (value) => value == null || value.isEmpty ? 'Ingrese la contraseña' : null,
                       ),
-                      const SizedBox(height: 24),
+                      DropdownButtonFormField<String>(
+                        value: rol,
+                        items: const [
+                          DropdownMenuItem(value: 'estudiante', child: Text('Estudiante')),
+                          DropdownMenuItem(value: 'admin', child: Text('Administrador')),
+                        ],
+                        onChanged: (value) => setState(() => rol = value ?? 'estudiante'),
+                        decoration: const InputDecoration(labelText: 'Rol'),
+                      ),
+                      const SizedBox(height: 20),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF8B0000),
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: _registrar,
-                        child: const Text('Registrar', style: TextStyle(color: Colors.white)),
+                        onPressed: _guardando ? null : _registrar,
+                        child: _guardando
+                            ? const CircularProgressIndicator()
+                            : const Text('Registrar', style: TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),

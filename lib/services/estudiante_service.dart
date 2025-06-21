@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/estudiantes.dart';
 
@@ -42,6 +43,21 @@ class EstudianteService {
     );
     if (response.statusCode != 200) {
       throw Exception('Error al editar estudiante');
+    }
+  }
+
+  Future<String?> subirImagen(File imagen) async {
+    final uri = Uri.parse('$baseUrl/upload');
+    final request = http.MultipartRequest('POST', uri);
+    request.files.add(await http.MultipartFile.fromPath('imagen', imagen.path));
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final respStr = await response.stream.bytesToString();
+      final data = json.decode(respStr);
+      return data['url'] as String?;
+    } else {
+      return null;
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../models/estudiantes.dart';
 import '../widgets/custom_app_bar.dart';
+import '../services/estudiante_service.dart';
 
 class FormularioEstudiantePage extends StatefulWidget {
   final Estudiante? estudiante; // null si se va a crear
@@ -36,6 +37,8 @@ class _FormularioEstudiantePageState extends State<FormularioEstudiantePage> {
   ];
   final List<String> jornadasNino = ['Mañana', 'Tarde'];
   final List<String> jornadasAdulto = ['Mañana', 'Tarde', 'Noche'];
+
+  final EstudianteService _service = EstudianteService();
 
   @override
   void initState() {
@@ -73,10 +76,20 @@ class _FormularioEstudiantePageState extends State<FormularioEstudiantePage> {
     }
   }
 
-  void _guardar() {
+  void _guardar() async {
     if (_formKey.currentState!.validate()) {
+      String imagenUrl = imagenCtrl.text;
+
+      // Si hay una imagen nueva seleccionada, súbela
+      if (_imagenFile != null) {
+        final url = await _service.subirImagen(_imagenFile!);
+        if (url != null) {
+          imagenUrl = url;
+        }
+      }
+
       final nuevo = Estudiante(
-        id: widget.estudiante?.id, // <-- Mantén el id si es edición
+        id: widget.estudiante?.id,
         nombre: nombreCtrl.text,
         rango: rango,
         tipoSangre: tipoSangre,
@@ -84,9 +97,9 @@ class _FormularioEstudiantePageState extends State<FormularioEstudiantePage> {
         emergencia: emergenciaCtrl.text,
         edad: int.tryParse(edadCtrl.text) ?? 0,
         jornada: jornada,
-        imagen: imagenCtrl.text,
+        imagen: imagenUrl,
       );
-      Navigator.pop(context, nuevo); // Retorna el estudiante al llamador
+      Navigator.pop(context, nuevo);
     }
   }
 
@@ -125,7 +138,9 @@ class _FormularioEstudiantePageState extends State<FormularioEstudiantePage> {
                           radius: 50,
                           backgroundImage: _imagenFile != null
                               ? FileImage(_imagenFile!)
-                              : AssetImage(imagenCtrl.text) as ImageProvider,
+                              : (imagenCtrl.text.startsWith('http')
+                                  ? NetworkImage(imagenCtrl.text)
+                                  : AssetImage(imagenCtrl.text)) as ImageProvider,
                         ),
                         IconButton(
                           icon: const Icon(Icons.camera_alt, color: Colors.black87),
