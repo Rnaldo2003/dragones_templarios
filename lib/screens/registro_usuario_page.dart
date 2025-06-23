@@ -1,7 +1,18 @@
+import 'dart:io';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import '../models/usuarios.dart';
 import '../services/usuario_service.dart';
 import '../widgets/custom_app_bar.dart';
+import 'home_page.dart';
+import 'lista_estudiantes_page.dart'; // Ajusta el nombre/ruta si es diferente
+
+File? _imagenFile;
+Uint8List? _webImageBytes;
+String? urlImagen;
 
 class RegistroUsuarioPage extends StatefulWidget {
   const RegistroUsuarioPage({super.key});
@@ -25,10 +36,18 @@ class _RegistroUsuarioPageState extends State<RegistroUsuarioPage> {
     if (_formKey.currentState!.validate()) {
       setState(() => _guardando = true);
 
+      // Subir imagen si hay
+      String imagenUrl = 'assets/default.png';
+      if ((_imagenFile != null) || (_webImageBytes != null)) {
+        final url = await _subirImagen();
+        if (url != null) imagenUrl = url;
+      }
+
       final usuario = Usuario(
         nombre: nombreCtrl.text,
         email: emailCtrl.text,
         rol: rol,
+        imagen: imagenUrl, // <-- Nuevo campo
       );
 
       final response = await _service.crearUsuario(usuario, passCtrl.text);
@@ -39,13 +58,68 @@ class _RegistroUsuarioPageState extends State<RegistroUsuarioPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Usuario creado exitosamente')),
         );
-        Navigator.pop(context, usuario);
+        Navigator.pop(context, true); // <-- Esto regresa a la pantalla anterior con AppBar y Drawer
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al crear usuario')),
         );
       }
     }
+  }
+
+  Future<void> _seleccionarImagen() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, maxWidth: 300, maxHeight: 300);
+    if (pickedFile != null) {
+      if (kIsWeb) {
+        final bytes = await pickedFile.readAsBytes();
+        setState(() {
+          _webImageBytes = bytes;
+          _imagenFile = null;
+        });
+      } else {
+        setState(() {
+          _imagenFile = File(pickedFile.path);
+          _webImageBytes = null;
+        });
+      }
+    }
+  }
+
+  Future<String?> _subirImagen() async {
+    if (kIsWeb && _webImageBytes != null) {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://localhost:3000/upload'),
+      );
+      request.files.add(http.MultipartFile.fromBytes(
+        'imagen',
+        _webImageBytes!,
+        filename: 'web_user.png',
+      ));
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        final respStr = await response.stream.bytesToString();
+        final url = jsonDecode(respStr)['url'];
+        return url;
+      }
+      return null;
+    } else if (_imagenFile != null) {
+      // Reutiliza el método de tu service si lo tienes, o pon aquí el código de subida
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://localhost:3000/upload'),
+      );
+      request.files.add(await http.MultipartFile.fromPath('imagen', _imagenFile!.path));
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        final respStr = await response.stream.bytesToString();
+        final url = jsonDecode(respStr)['url'];
+        return url;
+      }
+      return null;
+    }
+    return null;
   }
 
   @override
@@ -78,6 +152,37 @@ class _RegistroUsuarioPageState extends State<RegistroUsuarioPage> {
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       const SizedBox(height: 24),
+                      Center(
+                        child: Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Colors.grey[200],
+                              backgroundImage: _webImageBytes != null
+                                  ? MemoryImage(_webImageBytes!)
+                                  : _imagenFile != null
+                                      ? FileImage(_imagenFile!)
+                                      : (urlImagen != null && urlImagen!.startsWith('http'))
+                                          ? NetworkImage(urlImagen!)
+                                          : const AssetImage('assets/default.png') as ImageProvider,
+                            ),
+                            Material(
+                              color: Colors.white,
+                              shape: const CircleBorder(),
+                              child: InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: _seleccionarImagen,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8),
+                                  child: Icon(Icons.camera_alt, color: Colors.black87, size: 22),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       TextFormField(
                         controller: nombreCtrl,
                         decoration: const InputDecoration(labelText: 'Nombre'),
@@ -105,10 +210,18 @@ class _RegistroUsuarioPageState extends State<RegistroUsuarioPage> {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[800], // Fondo rojo oscuro
+                          foregroundColor: Colors.black,    // Letras negras
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
                         onPressed: _guardando ? null : _registrar,
                         child: _guardando
-                            ? const CircularProgressIndicator()
-                            : const Text('Registrar', style: TextStyle(color: Colors.white)),
+                            ? const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                              )
+                            : const Text('Registrar', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),

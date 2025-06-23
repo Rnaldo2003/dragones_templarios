@@ -24,10 +24,30 @@ class UsuarioService {
         'email': usuario.email,
         'password': password,
         'rol': usuario.rol,
+        'profile_picture': usuario.imagen, // <-- Nuevo campo
       }),
     );
     return response.statusCode == 201;
   }
 
-  // Puedes agregar métodos para editar y eliminar usuarios aquí
+  Future<void> eliminarUsuario(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/users/$id'));
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Error al eliminar usuario');
+    }
+  }
+
+  Future<bool> editarUsuario(Usuario usuario) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/users/${usuario.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'firstName': usuario.nombre,
+        'email': usuario.email,
+        'rol': usuario.rol,
+        'profile_picture': usuario.imagen,
+      }),
+    );
+    return response.statusCode == 200;
+  }
 }

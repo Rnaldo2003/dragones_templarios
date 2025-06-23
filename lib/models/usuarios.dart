@@ -2,13 +2,15 @@ class Usuario {
   int? id;
   String nombre;
   String email;
-  String rol; // 'admin' o 'estudiante'
+  String rol;
+  String imagen; // <-- Nuevo campo
 
   Usuario({
     this.id,
     required this.nombre,
     required this.email,
     required this.rol,
+    required this.imagen, // <-- Nuevo campo
   });
 
   factory Usuario.fromJson(Map<String, dynamic> json) => Usuario(
@@ -16,6 +18,7 @@ class Usuario {
         nombre: json['nombre'] ?? '',
         email: json['email'] ?? '',
         rol: json['rol'] ?? 'estudiante',
+        imagen: json['profile_picture'] ?? 'assets/default.png', // <-- Nuevo campo
       );
 
   Map<String, dynamic> toJson() => {
@@ -23,5 +26,6 @@ class Usuario {
         'nombre': nombre,
         'email': email,
         'rol': rol,
+        'profile_picture': imagen, // <-- Nuevo campo
       };
 }

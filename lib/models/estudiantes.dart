@@ -30,7 +30,10 @@ class Estudiante {
         emergencia: json['emergencia'] ?? '',
         edad: json['edad'] ?? 0,
         jornada: json['jornada'] ?? '',
-        imagen: json['profile_picture'] ?? '',
+        imagen: (json['profile_picture'] != null &&
+                (json['profile_picture'] as String).isNotEmpty)
+            ? json['profile_picture']
+            : 'assets/default.png',
       );
 
   Map<String, dynamic> toJson() => {

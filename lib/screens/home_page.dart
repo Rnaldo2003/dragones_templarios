@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/usuarios.dart';
 import '../widgets/custom_drawer.dart';
+import '../widgets/custom_app_bar.dart';
 import 'lista_estudiantes_page.dart';
 import 'lista_usuarios_page.dart';
 import 'formulario_estudiante.dart';
@@ -88,6 +89,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppBar(
+        title: 'Inicio',
+        avatarUrl: widget.usuario.imagen,
+      ),
       drawer: CustomDrawer(
         usuario: widget.usuario,
         onLogout: _logout,
@@ -96,7 +101,6 @@ class _HomePageState extends State<HomePage> {
         onFormularioEstudiantes: _goToFormularioEstudiantes,
         onFormularioUsuarios: _goToFormularioUsuarios,
       ),
-      appBar: AppBar(title: const Text('App Taekwondo')),
       body: _currentScreen,
     );
   }

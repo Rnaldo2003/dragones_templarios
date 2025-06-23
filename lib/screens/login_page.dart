@@ -33,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
         nombre: data['nombre'],
         email: data['email'],
         rol: data['rol'],
+        imagen: data['profile_picture'] ?? 'assets/default.png', // <-- Línea agregada
       );
       Navigator.pushReplacement(
         context,
@@ -50,30 +51,78 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailCtrl,
-              decoration: const InputDecoration(labelText: 'Email'),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0D1A36), Color(0xFF8B0000)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo redondo
+                CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.white,
+                  backgroundImage: const AssetImage('assets/logo.png'),
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  width: 320,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.90),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: emailCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Usuario',
+                          prefixIcon: Icon(Icons.person),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: passCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Contraseña',
+                          prefixIcon: Icon(Icons.lock),
+                        ),
+                        obscureText: true,
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0D1A36), // Azul oscuro
+                            foregroundColor: Colors.white, // Letras blancas
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: _login,
+                          child: const Text(
+                            'Ingresar',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            TextField(
-              controller: passCtrl,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Iniciar sesión'),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
-
-
